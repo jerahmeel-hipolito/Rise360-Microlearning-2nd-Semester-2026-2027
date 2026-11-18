@@ -1,0 +1,146 @@
+/**
+ * storage.js
+ * Owns every read/write to localStorage and sessionStorage. No other file
+ * should touch browser storage directly — if the storage strategy ever
+ * changes, only this file should need to change.
+ *
+ * localStorage:
+ *   studentId        - persists across browser sessions, set once at landing
+ *   pendingPayloads_2026S2 - JSON array of analytics payloads that failed to
+ *                      send and survive a tab close so they can retry later.
+ *                      NAMESPACED on purpose: the 1st-semester portal is
+ *                      served from the same github.io origin and has its own
+ *                      "pendingPayloads" queue pointed at ITS OWN Apps Script.
+ *                      Sharing one key would let either site flush the
+ *                      other's queued records into the wrong spreadsheet.
+ *
+ * sessionStorage (cleared when the tab/browser closes — by design, since a
+ * new browser session must always mean a new lesson session):
+ *   sessionId         - fresh UUID per lesson visit, never reused
+ *   startTime         - ISO timestamp when the current lesson timer started
+ *   attempt_<lessonId> - per-lesson attempt counter
+ */
+
+const PENDING_QUEUE_KEY = 'pendingPayloads_2026S2';
+
+const Storage = {
+  // ---- Student identity (localStorage) ----
+
+  getStudentId() {
+    return localStorage.getItem('studentId');
+  },
+
+  setStudentId(id) {
+    localStorage.setItem('studentId', id);
+  },
+
+  clearStudentId() {
+    localStorage.removeItem('studentId');
+  },
+
+  // ---- Per-visit session state (sessionStorage) ----
+
+  getSessionId() {
+    return sessionStorage.getItem('sessionId');
+  },
+
+  setSessionId(id) {
+    sessionStorage.setItem('sessionId', id);
+  },
+
+  getStartTime() {
+    return sessionStorage.getItem('startTime');
+  },
+
+  setStartTime(iso) {
+    sessionStorage.setItem('startTime', iso);
+  },
+
+  // Attempt number is tracked per lesson (keyed by lessonId), not as a
+  // single global counter — otherwise visiting a second lesson would
+  // inherit the first lesson's attempt count.
+  getAttemptNumber(lessonId) {
+    const raw = sessionStorage.getItem('attempt_' + lessonId);
+    return raw ? parseInt(raw, 10) : 0;
+  },
+
+  incrementAttemptNumber(lessonId) {
+    const next = this.getAttemptNumber(lessonId) + 1;
+    sessionStorage.setItem('attempt_' + lessonId, String(next));
+    return next;
+  },
+
+  // ---- Offline retry queue (localStorage, so it survives a tab close) ----
+
+  queuePendingPayload(payload) {
+    const queue = this.getPendingQueue();
+    queue.push(payload);
+    localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(queue));
+  },
+
+  getPendingQueue() {
+    const raw = localStorage.getItem(PENDING_QUEUE_KEY);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch (err) {
+      // Corrupted queue data should never crash the page — drop it and move on.
+      console.error('Pending queue was corrupted, clearing it:', err);
+      localStorage.removeItem(PENDING_QUEUE_KEY);
+      return [];
+    }
+  },
+
+  setPendingQueue(queue) {
+    localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(queue));
+  },
+
+  // ---- Cosmetic "completed" badge shown on courses.html ----
+  // Purely a local convenience for this browser (see courses.html for the
+  // full explanation of why this is NOT authoritative analytics data).
+  // Keyed on the RAW chapter/lesson numbers (e.g. "03", "05"), not the
+  // globally-unique composite IDs sent to the backend (see tracking.js) —
+  // this key only ever needs to be unique within one browser's storage.
+
+  // BUGFIX: chapterNum/lessonNum arrive in TWO different shapes depending on
+  // the caller — tracking.js derives them from the URL folder name, which
+  // are already zero-padded strings ("06"), while course-*.html derives
+  // them from course-catalog.js's `lessonNum` field, which is a plain
+  // unpadded integer (6). "06" !== "6" as an object key, so a lesson
+  // marked complete by tracking.js could never be found by course-*.html's
+  // lookup — every lesson silently read back as "Not started" regardless
+  // of actual completion. Normalizing both sides to a 2-digit zero-padded
+  // string here means every caller produces an identical key no matter
+  // which shape it started from. Padding to 2 digits is safe up to 99
+  // chapters/lessons, comfortably above this project's real scale.
+  _completionKey(courseId, chapterNum, lessonNum) {
+    const ch = String(chapterNum).padStart(2, '0');
+    const le = String(lessonNum).padStart(2, '0');
+    return 'completed_' + courseId + '_' + ch + '_' + le;
+  },
+
+  markLessonCompletedLocally(courseId, chapterNum, lessonNum) {
+    localStorage.setItem(this._completionKey(courseId, chapterNum, lessonNum), 'true');
+  },
+
+  isLessonCompletedLocally(courseId, chapterNum, lessonNum) {
+    return localStorage.getItem(this._completionKey(courseId, chapterNum, lessonNum)) === 'true';
+  },
+
+  // Counts completed lessons for one course by scanning localStorage keys
+  // with that course's prefix. Used to render the progress bar on
+  // courses.html (per-course summary) and each course-*.html detail page
+  // (full progress bar). O(number of localStorage keys), which is trivially
+  // small at this app's scale (a few dozen lesson flags per student browser).
+  countCompletedForCourse(courseId) {
+    const prefix = 'completed_' + courseId + '_';
+    let count = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.indexOf(prefix) === 0 && localStorage.getItem(key) === 'true') {
+        count++;
+      }
+    }
+    return count;
+  }
+};
