@@ -21,7 +21,7 @@
 const Api = {
   // Replace with the URL of the 2nd-semester Apps Script deployment (see
   // apps-script/README.md). The 1st-semester portal has its own, separate one.
-  ENDPOINT_URL: 'PASTE_DEPLOYED_APPS_SCRIPT_URL_HERE', // 2nd-sem Apps Script Web app URL — NOT the 1st-sem one
+  ENDPOINT_URL: 'https://script.google.com/macros/s/AKfycbxrlQ8TaXZKLR02EY0XBXb28C54yzAtmBDI8l_cy7PGZ89PzaFu6JW1LR-ANH-MQW8ryA/exec', // 2nd-sem Apps Script Web app URL — NOT the 1st-sem one
 
   async send(payload) {
     try {
