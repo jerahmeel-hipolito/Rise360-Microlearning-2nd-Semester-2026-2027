@@ -26,7 +26,7 @@ Re-running the generators never overwrites an existing `rise/` folder, so a real
 
 ## One-time setup for this semester
 
-1. **Sheet + Apps Script**: make a copy of the 1st-sem Sheet (or start fresh), clear its Activity Log, paste `apps-script/Code.gs` over the script, run `setupSpreadsheet()`, deploy a new Web app (see `apps-script/README.md`). Update the **Student Roster** tab (carry-over students keep the same `YYYY-NNNNNN` ID).
+1. **Sheet + Apps Script**: make a copy of the 1st-sem Sheet (or start fresh), clear its Activity Log, paste `apps-script/Code.gs` over the script, run `setupSpreadsheet()`, deploy a new Web app (see `apps-script/README.md`). Fill the **Student Roster** tab from `student-roster-import.csv` (in the separate private folder that came with this zip — **never put class lists in this public repo**). Student numbers are converted to the portal's `YYYY-NNNNNN` sign-in format (e.g. `2025001234` → `2025-001234`).
 2. **`js/api.js`**: replace `PASTE_DEPLOYED_APPS_SCRIPT_URL_HERE` with the new deployment URL.
 3. **New GitHub repo** (e.g. `Rise360-Microlearning-2nd-Semester-2026-2027`), upload everything, then Settings → Pages → Deploy from `main` / root.
 
