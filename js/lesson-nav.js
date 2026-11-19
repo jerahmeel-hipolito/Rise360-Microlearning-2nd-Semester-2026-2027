@@ -166,7 +166,7 @@
 
     // Skip lessons that aren't released yet — "Next" should never land a
     // student on a locked placeholder.
-    const next = flat.slice(idx + 1).find(function (e) { return e.released; });
+    const next = flat.slice(idx + 1).find(function (e) { return e.released && e.courseId === loc.courseId; });
     if (next) {
       link.href = root + 'courses/' + next.courseId + '/' + next.chapterFolder + '/' + next.lessonFolder + '/';
       setNavContent(link, 'Next lesson', next.lessonTitle, false);
@@ -211,7 +211,7 @@
       return;
     }
 
-    const prev = flat.slice(0, idx).reverse().find(function (e) { return e.released; });
+    const prev = flat.slice(0, idx).reverse().find(function (e) { return e.released && e.courseId === loc.courseId; });
     if (prev) {
       link.href = root + 'courses/' + prev.courseId + '/' + prev.chapterFolder + '/' + prev.lessonFolder + '/';
       setNavContent(link, 'Previous lesson', prev.lessonTitle, true);
