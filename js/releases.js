@@ -28,5 +28,7 @@
  * for up to ~10 minutes, so students can see a new unlock a few minutes late.
  */
 window.RELEASED_LESSONS = [
-  // 'bst305-L01',
+  'bst305-L01',
+  'mas204a-L01',
+  'mas308-L01',
 ];
