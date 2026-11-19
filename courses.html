@@ -24,8 +24,7 @@
   <main>
     <div class="shell">
       <div class="page-title-row">
-        <p class="eyebrow">Your Courses</p>
-        <h1>Choose a course to continue.</h1>
+        <h1>Your courses</h1>
       </div>
 
       <div class="course-preview-grid" id="course-preview-grid">
@@ -75,41 +74,77 @@
 
       const grid = document.getElementById('course-preview-grid');
 
-      // NOTE: the progress shown here is a purely cosmetic, LOCAL-ONLY
-      // convenience for the student's own browser (see storage.js
-      // countCompletedForCourse). It is NOT authoritative analytics — the
-      // instructor's Dashboard sheet remains the source of truth.
+      // Small white line drawings, one per course, shown faintly in the card band.
+      const MOTIFS = {
+        bst305: '<path d="M10 100 C60 100 70 28 120 28 C170 28 180 100 230 100" fill="rgba(255,255,255,0.12)" stroke="currentColor" stroke-width="1.5"/><line x1="120" y1="28" x2="120" y2="100" stroke="currentColor" stroke-dasharray="3 3" stroke-width="1"/><line x1="0" y1="100" x2="240" y2="100" stroke="currentColor" stroke-width="1"/>',
+        mas204a: '<line x1="20" y1="104" x2="230" y2="22" stroke="currentColor" stroke-width="1.5"/><g fill="currentColor"><circle cx="40" cy="92" r="2.6"/><circle cx="68" cy="84" r="2.6"/><circle cx="92" cy="80" r="2.6"/><circle cx="118" cy="62" r="2.6"/><circle cx="146" cy="66" r="2.6"/><circle cx="170" cy="48" r="2.6"/><circle cx="196" cy="40" r="2.6"/><circle cx="220" cy="34" r="2.6"/></g>',
+        mas308: '<g fill="none" stroke="currentColor" stroke-width="1"><rect x="110" y="18" width="120" height="86"/><line x1="150" y1="18" x2="150" y2="104"/><line x1="190" y1="18" x2="190" y2="104"/><line x1="110" y1="47" x2="230" y2="47"/><line x1="110" y1="76" x2="230" y2="76"/></g><g fill="rgba(255,255,255,0.28)"><rect x="110" y="18" width="40" height="29"/><rect x="150" y="47" width="40" height="29"/><rect x="190" y="76" width="40" height="28"/></g>'
+      };
+
+      function esc(t) {
+        return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function lessonUrl(course, ch, l) {
+        return 'courses/' + course.courseId + '/chapter-' + ch.chapterId + '/' + l.lessonId + '/';
+      }
+
+      // NOTE: progress here is a cosmetic, LOCAL-ONLY convenience for the
+      // student's own browser. The instructor's Dashboard sheet remains the
+      // source of truth.
       CourseCatalog.forEach(function (course) {
-        const completed = completedReleased(course);
         const total = course.totalLessons;
         const released = course.releasedLessons;
-        const pct = released > 0 ? Math.round((completed / released) * 100) : 0;
         const chapterCount = course.chapters.length;
+
+        let strip = '';
+        let completed = 0;
+        let nextUp = null;
+        course.chapters.forEach(function (ch) {
+          ch.lessons.forEach(function (l) {
+            const done = l.released && Storage.isLessonCompletedLocally(course.courseId, ch.chapterId, l.lessonNum);
+            if (done) completed++;
+            if (l.released && !done && !nextUp) nextUp = { ch: ch, l: l };
+            strip += '<li class="' + (done ? 'done' : (l.released ? 'released' : '')) + '"></li>';
+          });
+        });
+
+        let nextHtml, ctaText, ctaHref;
+        if (nextUp) {
+          nextHtml = (completed > 0 ? 'Continue with' : 'Start with') +
+            '<strong>' + esc(nextUp.l.lessonTitle) + '</strong>';
+          ctaText = completed > 0 ? 'Continue' : 'Start course';
+          ctaHref = lessonUrl(course, nextUp.ch, nextUp.l);
+        } else if (released > 0) {
+          nextHtml = 'You are caught up.<strong>New lessons open weekly</strong>';
+          ctaText = 'Review lessons';
+          ctaHref = pageFor(course);
+        } else {
+          nextHtml = 'Lessons open soon.<strong>Check back weekly</strong>';
+          ctaText = 'View outline';
+          ctaHref = pageFor(course);
+        }
 
         const card = document.createElement('div');
         card.className = 'course-preview-card';
-
         card.innerHTML =
           '<div class="preview-card-band" data-course="' + course.courseId + '">' +
-            '<span class="preview-course-code">' + course.courseCode + '</span>' +
-            (completed > 0 ? '<span class="preview-progress-pill">' + pct + '% complete</span>' : '<span class="preview-progress-pill new">New</span>') +
+            '<svg class="preview-motif" viewBox="0 0 240 116" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false" style="opacity:.35">' + (MOTIFS[course.courseId] || '') + '</svg>' +
+            '<span class="preview-course-code">' + esc(course.courseNumber) + '</span>' +
           '</div>' +
           '<div class="preview-card-body">' +
-            '<p class="preview-course-number">' + course.courseNumber + '</p>' +
-            '<h2>' + course.courseName + '</h2>' +
-            '<p class="preview-course-desc">' + course.courseDescription + '</p>' +
+            '<h2>' + esc(course.courseName) + '</h2>' +
+            '<p class="preview-course-desc">' + esc(course.courseDescription) + '</p>' +
+            '<ul class="lesson-strip" aria-hidden="true">' + strip + '</ul>' +
             '<div class="preview-meta-row">' +
+              '<span>' + released + ' of ' + total + ' lessons open</span>' +
               '<span>' + chapterCount + ' chapters</span>' +
-              '<span class="meta-dot">&middot;</span>' +
-              '<span>' + total + ' lessons</span>' +
-              (released > 0 ? '<span class="meta-dot">&middot;</span><span>' + released + ' released</span>' : '') +
             '</div>' +
-            '<div class="progress-track" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + course.courseName + ' progress">' +
-              '<div class="progress-fill" style="width:' + pct + '%"></div>' +
+            '<div class="preview-next">' + nextHtml + '</div>' +
+            '<div class="preview-actions">' +
+              '<a class="btn-continue" href="' + ctaHref + '">' + ctaText + '</a>' +
+              '<a class="btn-all-lessons" href="' + pageFor(course) + '">All lessons</a>' +
             '</div>' +
-            '<a class="btn-view-course" href="' + pageFor(course) + '">' +
-              (completed > 0 ? 'Continue course' : 'View course') + ' &rarr;' +
-            '</a>' +
           '</div>';
 
         grid.appendChild(card);

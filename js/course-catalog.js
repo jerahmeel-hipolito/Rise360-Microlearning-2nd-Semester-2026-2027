@@ -35,12 +35,12 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-01",
-            "lessonTitle": "Welcome to BST 305 — Course Orientation and Introduction to Biostatistics",
+            "lessonTitle": "Welcome to the Course — BST 305",
             "lessonNum": 1
           },
           {
             "lessonId": "lesson-02",
-            "lessonTitle": "Variables, Measurement Scales, Data Collection, Sampling, and Sample Size",
+            "lessonTitle": "Variables, Sampling, and Sample Size",
             "lessonNum": 2
           }
         ]
@@ -51,7 +51,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-03",
-            "lessonTitle": "Frequency Distributions, Basic Data Management, and Measures of Frequency",
+            "lessonTitle": "Frequency Distributions and Data Management",
             "lessonNum": 3
           },
           {
@@ -67,12 +67,12 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-05",
-            "lessonTitle": "Descriptive Statistics — Central Tendency, Dispersion, and Shape",
+            "lessonTitle": "Descriptive Statistics",
             "lessonNum": 5
           },
           {
             "lessonId": "lesson-06",
-            "lessonTitle": "Probability Essentials and Probability Distributions",
+            "lessonTitle": "Probability and Distributions",
             "lessonNum": 6
           }
         ]
@@ -88,7 +88,7 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-08",
-            "lessonTitle": "Comparing Two Means — t-Tests",
+            "lessonTitle": "Comparing Two Means: t-Tests",
             "lessonNum": 8
           }
         ]
@@ -99,7 +99,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-09",
-            "lessonTitle": "Principles of Experimental Design and One-Way ANOVA",
+            "lessonTitle": "Experimental Design and One-Way ANOVA",
             "lessonNum": 9
           }
         ]
@@ -115,7 +115,7 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-11",
-            "lessonTitle": "Randomized Block and Repeated-Measures Designs",
+            "lessonTitle": "Block and Repeated-Measures Designs",
             "lessonNum": 11
           }
         ]
@@ -131,7 +131,7 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-13",
-            "lessonTitle": "Categorical Data Analysis and Epidemiologic Measures of Association",
+            "lessonTitle": "Categorical Data and Epidemiologic Measures",
             "lessonNum": 13
           }
         ]
@@ -147,12 +147,12 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-15",
-            "lessonTitle": "Statistics in Genetics, Ecology, and Dose–Response Studies",
+            "lessonTitle": "Genetics, Ecology, and Dose–Response",
             "lessonNum": 15
           },
           {
             "lessonId": "lesson-16",
-            "lessonTitle": "Logistic Regression and Introduction to Survival Analysis",
+            "lessonTitle": "Logistic Regression and Survival Analysis",
             "lessonNum": 16
           }
         ]
@@ -172,7 +172,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-01",
-            "lessonTitle": "Welcome to MAS 204a — Course Orientation and Introduction to Regression Analysis",
+            "lessonTitle": "Welcome to the Course — MAS 204a",
             "lessonNum": 1
           },
           {
@@ -188,19 +188,19 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-03",
-            "lessonTitle": "Simple Linear Regression I: The Model and Least Squares Estimation",
+            "lessonTitle": "Simple Linear Regression I: Least Squares",
             "lessonNum": 3
           },
           {
             "lessonId": "lesson-04",
-            "lessonTitle": "Simple Linear Regression II: Variation and Goodness of Fit",
+            "lessonTitle": "Simple Linear Regression II: Goodness of Fit",
             "lessonNum": 4
           }
         ]
       },
       {
         "chapterId": "03",
-        "chapterTitle": "Simple Linear Regression: Inference, Diagnostics, Unusual Observations, Application",
+        "chapterTitle": "Simple Linear Regression: Inference and Diagnostics",
         "lessons": [
           {
             "lessonId": "lesson-05",
@@ -209,17 +209,17 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-06",
-            "lessonTitle": "Simple Linear Regression IV: Model Assumptions and Residual Analysis",
+            "lessonTitle": "Simple Linear Regression IV: Residual Analysis",
             "lessonNum": 6
           },
           {
             "lessonId": "lesson-07",
-            "lessonTitle": "Simple Linear Regression V: Unusual Observations and Transformations",
+            "lessonTitle": "Simple Linear Regression V: Unusual Observations",
             "lessonNum": 7
           },
           {
             "lessonId": "lesson-08",
-            "lessonTitle": "Simple Linear Regression VI: Applications and Review",
+            "lessonTitle": "Simple Linear Regression VI: Applications",
             "lessonNum": 8
           }
         ]
@@ -230,7 +230,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-09",
-            "lessonTitle": "Multiple Linear Regression I: The Model and Estimation",
+            "lessonTitle": "Multiple Linear Regression I: The Model",
             "lessonNum": 9
           },
           {
@@ -256,12 +256,12 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-13",
-            "lessonTitle": "Model Building I: Variable Selection Criteria",
+            "lessonTitle": "Model Building I: Selection Criteria",
             "lessonNum": 13
           },
           {
             "lessonId": "lesson-14",
-            "lessonTitle": "Model Building II: Selection Procedures and Model Validation",
+            "lessonTitle": "Model Building II: Procedures and Validation",
             "lessonNum": 14
           }
         ]
@@ -272,7 +272,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-15",
-            "lessonTitle": "Applied Regression Analysis: Advanced Topics and Tips",
+            "lessonTitle": "Advanced Topics and Practical Tips",
             "lessonNum": 15
           }
         ]
@@ -292,17 +292,17 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-01",
-            "lessonTitle": "Welcome to MAS 308 — Course Orientation and Introduction to Categorical Data Analysis",
+            "lessonTitle": "Welcome to the Course — MAS 308",
             "lessonNum": 1
           },
           {
             "lessonId": "lesson-02",
-            "lessonTitle": "Probability Distributions for Categorical and Count Data",
+            "lessonTitle": "Distributions for Categorical Data",
             "lessonNum": 2
           },
           {
             "lessonId": "lesson-03",
-            "lessonTitle": "Statistical Inference for Proportions",
+            "lessonTitle": "Inference for Proportions",
             "lessonNum": 3
           }
         ]
@@ -313,12 +313,12 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-04",
-            "lessonTitle": "Contingency Tables I: Notation and Probability Structure",
+            "lessonTitle": "Contingency Tables I: Structure",
             "lessonNum": 4
           },
           {
             "lessonId": "lesson-05",
-            "lessonTitle": "Contingency Tables II: Comparing Proportions, Relative Risk, and Odds Ratio",
+            "lessonTitle": "Contingency Tables II: Risk and Odds",
             "lessonNum": 5
           }
         ]
@@ -329,7 +329,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-06",
-            "lessonTitle": "Confidence Intervals and the Chi-Squared Test of Independence",
+            "lessonTitle": "Chi-Squared Test of Independence",
             "lessonNum": 6
           },
           {
@@ -345,7 +345,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-08",
-            "lessonTitle": "Association in Three-Way Tables",
+            "lessonTitle": "Three-Way Tables",
             "lessonNum": 8
           }
         ]
@@ -356,12 +356,12 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-09",
-            "lessonTitle": "Generalized Linear Models I: Components and Binary Response Models",
+            "lessonTitle": "GLMs I: Binary Response Models",
             "lessonNum": 9
           },
           {
             "lessonId": "lesson-10",
-            "lessonTitle": "Generalized Linear Models II: Count Data, Inference, and Model Checking",
+            "lessonTitle": "GLMs II: Count Data and Model Checking",
             "lessonNum": 10
           }
         ]
@@ -377,7 +377,7 @@ const CourseCatalog = [
           },
           {
             "lessonId": "lesson-12",
-            "lessonTitle": "Loglinear Models II: Three-Way Tables and Model Selection",
+            "lessonTitle": "Loglinear Models II: Three-Way Tables",
             "lessonNum": 12
           }
         ]
@@ -388,12 +388,12 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-13",
-            "lessonTitle": "Logistic Regression I: The Model and Its Interpretation",
+            "lessonTitle": "Logistic Regression I: The Model",
             "lessonNum": 13
           },
           {
             "lessonId": "lesson-14",
-            "lessonTitle": "Logistic Regression II: Model Building, Fit, and Diagnostics",
+            "lessonTitle": "Logistic Regression II: Fit and Diagnostics",
             "lessonNum": 14
           }
         ]
@@ -404,7 +404,7 @@ const CourseCatalog = [
         "lessons": [
           {
             "lessonId": "lesson-15",
-            "lessonTitle": "Regression for Count Data and Applied Categorical Data Analysis",
+            "lessonTitle": "Count Data Regression and Applications",
             "lessonNum": 15
           }
         ]

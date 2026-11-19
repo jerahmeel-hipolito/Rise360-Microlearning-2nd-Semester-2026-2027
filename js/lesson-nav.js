@@ -169,10 +169,10 @@
     const next = flat.slice(idx + 1).find(function (e) { return e.released; });
     if (next) {
       link.href = root + 'courses/' + next.courseId + '/' + next.chapterFolder + '/' + next.lessonFolder + '/';
-      link.textContent = 'Next: ' + next.lessonTitle + ' →';
+      setNavContent(link, 'Next lesson', next.lessonTitle, false);
     } else {
       link.href = root + 'course-' + loc.courseId + '.html';
-      link.textContent = 'Back to course lessons \u2192';
+      setNavContent(link, 'Back to course lessons', '', false);
     }
   }
 
@@ -181,6 +181,20 @@
   // cross-course CourseCatalog order (not "previous within this chapter
   // only"), matching how "next" already crosses chapter/course boundaries,
   // so the two buttons stay a consistent, predictable pair.
+  // Two-line button content: a short fixed label, then the lesson title
+  // (CSS truncates the title), so long titles never stretch the buttons.
+  function esc(t) {
+    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function setNavContent(link, label, title, arrowFirst) {
+    link.innerHTML =
+      (arrowFirst ? '<span class="nav-arrow" aria-hidden="true">\u2190</span>' : '') +
+      '<span class="nav-text"><span class="nav-label">' + esc(label) + '</span>' +
+      (title ? '<span class="nav-title">' + esc(title) + '</span>' : '') + '</span>' +
+      (arrowFirst ? '' : '<span class="nav-arrow" aria-hidden="true">\u2192</span>');
+    if (title) link.setAttribute('title', title);
+  }
+
   function wirePrevButton(loc, flat, root) {
     const link = document.getElementById('prev-lesson-link');
     if (!link) return;
@@ -200,7 +214,7 @@
     const prev = flat.slice(0, idx).reverse().find(function (e) { return e.released; });
     if (prev) {
       link.href = root + 'courses/' + prev.courseId + '/' + prev.chapterFolder + '/' + prev.lessonFolder + '/';
-      link.textContent = '← Previous: ' + prev.lessonTitle;
+      setNavContent(link, 'Previous lesson', prev.lessonTitle, true);
     } else {
       // No released lesson before this one — nothing to go back to.
       link.style.display = 'none';

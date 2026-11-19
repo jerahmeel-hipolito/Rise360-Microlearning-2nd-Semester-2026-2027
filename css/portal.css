@@ -600,17 +600,26 @@ main {
 }
 
 /* ---------- Course preview grid (courses.html) ---------- */
-/* Cards summarize each course and link out to its own detail page, rather
-   than listing every lesson inline. In place of course photography (not
-   available in this build), the "band" at the top of each card uses a
-   faint graph-paper grid — a quiet nod to the subject matter that stays
-   inside the established one-blue-accent palette rather than introducing
-   per-course colors. */
+/* Each card carries a small line drawing of the statistics it teaches
+   (distribution curve, regression scatter, contingency table) in its band,
+   and a strip with one segment per lesson: done, released, or still locked.
+   The strip is the card's signature - it shows at a glance how far the
+   weekly release has come. Same single blue accent as the rest of the site. */
 
 .course-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+@media (min-width: 640px) {
+  .course-preview-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .course-preview-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .preview-actions { flex-wrap: wrap; }
 }
 
 .course-preview-card {
@@ -620,76 +629,58 @@ main {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.course-preview-card:hover {
-  box-shadow: 0 8px 24px rgba(26, 36, 51, 0.09);
-  transform: translateY(-2px);
+.course-preview-card:hover,
+.course-preview-card:focus-within {
+  box-shadow: 0 10px 28px rgba(26, 36, 51, 0.08);
+  border-color: #c5d2ea;
 }
 
 .preview-card-band {
   position: relative;
-  padding: 18px 20px;
-  background:
-    linear-gradient(155deg, var(--blue-700), var(--blue-600) 65%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0, rgba(255,255,255,0.07) 1px, transparent 1px, transparent 22px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0, rgba(255,255,255,0.07) 1px, transparent 1px, transparent 22px);
+  height: 116px;
+  padding: 16px 20px;
+  background: linear-gradient(160deg, var(--blue-700), var(--blue-600));
+  color: #ffffff;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 96px;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.preview-motif {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  color: #ffffff;
+  pointer-events: none;
 }
 
 .preview-course-code {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: #ffffff;
-  border-left: 2px solid rgba(255,255,255,0.8);
-  padding-left: 9px;
-}
-
-.preview-progress-pill {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.03em;
-  color: var(--blue-700);
-  background: #ffffff;
-  border-radius: 100px;
-  padding: 4px 10px;
-  flex-shrink: 0;
-}
-
-.preview-progress-pill.new {
-  color: #ffffff;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.5);
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.55rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
 .preview-card-body {
-  padding: 20px 20px 22px;
+  padding: 20px 22px 22px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
   flex: 1;
-}
-
-.preview-course-number {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--ink-faint);
-  margin: 0;
-  letter-spacing: 0.03em;
 }
 
 .preview-card-body h2 {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.14rem;
-  margin: 2px 0 6px;
+  font-size: 1.2rem;
+  margin: 0 0 6px;
   color: var(--ink);
   line-height: 1.28;
 }
@@ -697,23 +688,99 @@ main {
 .preview-course-desc {
   color: var(--ink-soft);
   font-size: 0.88rem;
-  margin: 0 0 14px;
-  line-height: 1.5;
+  margin: 0 0 18px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
+
+.lesson-strip {
+  display: flex;
+  gap: 3px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.lesson-strip li {
+  flex: 1;
+  height: 8px;
+  border-radius: 1px;
+  background: transparent;
+  border: 1px solid var(--line);
+}
+
+.lesson-strip li.released { background: #a9c0ec; border-color: #a9c0ec; }
+.lesson-strip li.done { background: var(--blue-700); border-color: var(--blue-700); }
 
 .preview-meta-row {
-  font-size: 0.78rem;
-  color: var(--ink-faint);
-  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+  white-space: nowrap;
+}
+
+.preview-meta-row span:last-child { color: var(--ink-faint); }
+
+.preview-next {
+  margin-top: auto;
+  padding: 12px 14px;
+  background: var(--blue-050);
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+  min-height: 5.2em;
+}
+
+.preview-next strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.preview-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.meta-dot {
-  color: var(--line);
+.btn-continue {
+  display: inline-flex;
+  align-items: center;
+  background: var(--blue-700);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background 0.15s ease;
 }
 
+.btn-continue:hover { background: var(--blue-600); text-decoration: none; }
+
+.btn-all-lessons {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--blue-700);
+}
+
+.btn-continue:focus-visible,
+.btn-all-lessons:focus-visible {
+  outline: 2px solid var(--blue-500);
+  outline-offset: 3px;
+}
+
+/* Progress bar shared with the course detail pages */
 .progress-track {
   height: 6px;
   border-radius: 100px;
@@ -728,20 +795,7 @@ main {
   background: var(--blue-700);
 }
 
-.btn-view-course {
-  margin-top: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--blue-700);
-}
-
-.btn-view-course:hover {
-  text-decoration: none;
-  gap: 9px;
-}
+.meta-dot { color: var(--line); }
 
 /* ---------- Course detail page (course-*.html): progress bar header ---------- */
 
@@ -1138,6 +1192,35 @@ main {
     max-width: none;
     justify-content: center;
   }
+}
+
+
+/* Compact Previous/Next: short label over a truncated title. */
+.lesson-next-row .btn-next,
+.lesson-next-row .btn-prev {
+  padding: 9px 16px;
+  min-width: 0;
+  max-width: 48%;
+  gap: 10px;
+  overflow: hidden;
+  white-space: normal;
+}
+.lesson-next-row .btn-next { margin-left: auto; text-align: right; }
+.nav-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.btn-prev .nav-text { text-align: left; }
+.nav-label { font-size: 0.86rem; font-weight: 600; }
+.nav-title {
+  font-size: 0.76rem;
+  font-weight: 400;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-arrow { flex-shrink: 0; font-size: 1rem; }
+@media (max-width: 960px) {
+  .lesson-next-row .btn-next,
+  .lesson-next-row .btn-prev { max-width: none; }
 }
 
 
