@@ -3,20 +3,25 @@ catalog.py — SINGLE SOURCE OF TRUTH for the 2nd-semester (SY 2026-2027)
 course/chapter/lesson masterlist.
 
 Everything else is GENERATED from this file — never hand-edit them:
-  js/course-catalog.js        frontend navigation data
+  js/course-catalog.js        frontend navigation data (release state is layered on at
+                              runtime from js/releases.js)
   courses/<course>/...        lesson wrapper pages
   course-<course>.html        per-course chapter/lesson pages
   apps-script/Code.gs         the block between the GENERATED SEED markers
 
-WEEKLY RELEASE WORKFLOW
-  Every lesson starts as a locked "Coming soon" placeholder (released=False).
-  A placeholder page has NO Rise iframe, NO completion button and loads NO
-  tracking scripts, so nothing a student does on it can reach the Activity
-  Log. When a lesson's Rise 360 export is ready:
-    1. Drop the unzipped export into courses/<course>/chapter-NN/lesson-NN/rise/
-    2. Change that lesson's L(...) call below to  L("Title", released=True)
-    3. Run ./generate_all.sh and upload the changed files.
-  Only then does the lesson become clickable and start tracking.
+WEEKLY RELEASE WORKFLOW (no regeneration needed)
+  Every lesson is a locked "Coming soon" placeholder until its ID is listed in
+  js/releases.js (e.g. 'bst305-L01'). That one file is the ONLY thing edited
+  week to week:
+    1. Upload the lesson's unzipped Rise 360 export into
+       courses/<course>/chapter-NN/lesson-NN/rise/
+    2. On GitHub, edit js/releases.js and add the lesson's ID.
+  A locked lesson's page loads NO tracking code and has no Rise iframe, so
+  nothing a student does there can reach the Activity Log. Only after the ID
+  is added does the page load the iframe and the tracking scripts.
+
+  This file (course/chapter/lesson names) only changes if you rename or
+  reorganize lessons; then run ./generate_all.sh.
 
 Course slugs (bst305 / mas204a / mas308) are deliberately different from the
 1st-semester slugs (biostatistics / ssa / ama): both portals are served from
@@ -25,10 +30,9 @@ storage and in lesson IDs.
 """
 
 
-def L(title, released=False):
-    """One lesson. released=False renders a locked 'Coming soon' placeholder
-    with no tracking; flip to True only once the Rise export is in place."""
-    return {"title": title, "released": released}
+def L(title):
+    """One lesson. Whether it is unlocked is decided in js/releases.js."""
+    return {"title": title}
 
 
 COURSES = [
@@ -171,7 +175,6 @@ def flatten():
                     "chapter_title": chapter["title"],
                     "lesson_num": lesson_counter,
                     "lesson_title": lesson["title"],
-                    "released": lesson["released"],
                 })
     return out
 
@@ -181,5 +184,4 @@ if __name__ == "__main__":
     print(f"{len(flat)} total lessons across {len(COURSES)} courses")
     for course in COURSES:
         total = sum(len(ch["lessons"]) for ch in course["chapters"])
-        released = sum(1 for ch in course["chapters"] for l in ch["lessons"] if l["released"])
-        print(f"  {course['course_code']}: {len(course['chapters'])} chapters, {total} lessons ({released} released)")
+        print(f"  {course['course_code']}: {len(course['chapters'])} chapters, {total} lessons")

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming soon — Simple Linear Regression VI: Applications and Review</title>
+  <title>Simple Linear Regression VI: Applications and Review</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -53,16 +53,37 @@
           <div class="lesson-title-row">
             <h1>Simple Linear Regression VI: Applications and Review</h1>
           </div>
-          <!--
-            PLACEHOLDER PAGE (lesson not released yet).
-            Deliberately contains no iframe, no completion button and loads
-            NONE of api.js / tracking.js / rise-integration.js, so a student
-            visiting this page can never create an Activity Log row. When the
-            Rise export is ready: set released=True for this lesson in
-            data/catalog.py and run ./generate_all.sh — this file is then
-            regenerated from the live template.
-          -->
-          <div class="coming-soon-panel" role="status">
+          <div class="lesson-frame-wrap" id="lesson-live" hidden>
+            <!--
+              The Rise 360 export's own exported index.html goes here,
+              unzipped into this same lesson folder as e.g. "rise/index.html",
+              and is loaded in this iframe. Wrapping it this way means the
+              Rise export itself never needs tracking.js injected into it
+              directly — all tracking lives in THIS wrapper page instead,
+              which is what actually gets edited/maintained.
+
+              For HTML5 (non-SCORM) Rise exports: add the standardized
+              completion-trigger block (see
+              /rise-completion-trigger/completion-block.html at the repo
+              root) as the last block on this lesson's final slide inside
+              Rise itself, before exporting. It posts
+              window.top.postMessage({type: 'complete'}, '*') — which
+              js/rise-integration.js on THIS page is already listening for.
+            -->
+            <iframe
+              id="rise-frame"
+              data-src="rise/index.html"
+              title="Simple Linear Regression VI: Applications and Review"
+              allow="autoplay"
+            ></iframe>
+          </div>
+
+
+          <!-- LOCKED STATE: shown unless this lesson's ID is listed in
+               js/releases.js. The gate script at the bottom of this page
+               decides; a locked lesson never gets the iframe src and never
+               loads api.js / tracking.js / rise-integration.js. -->
+          <div class="coming-soon-panel" id="lesson-locked" role="status" hidden>
             <svg class="coming-soon-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/>
               <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -87,13 +108,35 @@
   </main>
 
   <footer class="site-footer">
-    <div class="shell shell-wide">Microlearning Portal · lessons are released weekly</div>
+    <div class="shell shell-wide">Microlearning Portal · this lesson's progress is recorded automatically</div>
   </footer>
 
-  <!-- No api.js / tracking.js / rise-integration.js here on purpose: a
-       placeholder lesson must never be able to log progress. -->
   <script src="../../../../js/storage.js"></script>
+  <script src="../../../../js/releases.js"></script>
   <script src="../../../../js/course-catalog.js"></script>
+  <script>
+    // ---- RELEASE GATE ------------------------------------------------
+    // Unlocked only if this lesson's ID is in js/releases.js. When locked:
+    // no iframe src, and api.js / tracking.js / rise-integration.js are
+    // NEVER loaded, so nothing here can reach the Activity Log.
+    // document.write is used on purpose: the scripts must run synchronously,
+    // in order, before DOMContentLoaded, exactly like normal script tags.
+    (function () {
+      var LESSON_ID = 'mas204a-L08';
+      var unlocked = (window.RELEASED_LESSONS || []).indexOf(LESSON_ID) !== -1;
+      document.getElementById('lesson-live').hidden = !unlocked;
+      document.getElementById('lesson-locked').hidden = unlocked;
+      if (unlocked) {
+        var frame = document.getElementById('rise-frame');
+        frame.src = frame.getAttribute('data-src');
+        document.write(
+          '<script src="../../../../js/api.js"><\/script>' +
+          '<script src="../../../../js/tracking.js"><\/script>' +
+          '<script src="../../../../js/rise-integration.js"><\/script>'
+        );
+      }
+    })();
+  </script>
   <script src="../../../../js/lesson-nav.js"></script>
   <script>
     document.getElementById('student-id-display').textContent = Storage.getStudentId() || '\u2014';

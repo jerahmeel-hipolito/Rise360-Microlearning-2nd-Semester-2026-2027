@@ -1218,3 +1218,9 @@ main {
 .coming-soon-icon {
   color: var(--blue-700);
 }
+
+/* The HTML `hidden` attribute must always win, even over rules like
+   .coming-soon-panel { display: flex } — the lesson release gate relies on it. */
+[hidden] {
+  display: none !important;
+}

@@ -1,15 +1,15 @@
 // placeholder_smoke_test.js
-// Guards the 2nd-semester rule: a lesson that is NOT released must be a
-// locked "Coming soon" page that cannot log anything, and releasing a
-// lesson must switch ONLY that lesson to the live, tracked wrapper.
-// Run with plain Node (needs python3 on PATH for the generator step):
+// Guards the 2nd-semester rule: a lesson that is NOT listed in js/releases.js
+// is a locked "Coming soon" page that cannot log anything, and listing its ID
+// switches ONLY that lesson to the live, tracked page.
+// Sections 1 and 3 run with plain Node. Section 2 drives a real browser and
+// needs Playwright (skipped, loudly, if it isn't installed):
 //   node dev-tests/placeholder_smoke_test.js
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const vm = require('vm');
-const { execFileSync } = require('child_process');
+const http = require('http');
 
 const REPO = path.join(__dirname, '..');
 const results = [];
@@ -23,65 +23,131 @@ function walk(dir, out = []) {
   return out;
 }
 
-// ---------- 1. Every lesson in the committed tree is a tracking-free placeholder ----------
+// ---------- 1. Static: structure of the generated tree ----------
 {
-  const lessonPages = walk(path.join(REPO, 'courses')).filter(f => /lesson-\d+[\\/]index\.html$/.test(f));
-  const FORBIDDEN = ['tracking.js', 'api.js', 'rise-integration.js', '<iframe', 'simulate', 'markLessonComplete', 'postMessage', 'Finish Lesson'];
-  const offenders = [];
-  for (const f of lessonPages) {
+  const pages = walk(path.join(REPO, 'courses')).filter(f => /lesson-\d+[\\/]index\.html$/.test(f));
+  check('all 46 lesson wrapper pages exist', pages.length === 46, `found ${pages.length}`);
+
+  const badId = [];
+  const staticTracking = [];
+  for (const f of pages) {
     const html = fs.readFileSync(f, 'utf8');
-    // ignore the explanatory comments: strip HTML comments before scanning
-    const body = html.replace(/<!--[\s\S]*?-->/g, '');
-    const hit = FORBIDDEN.filter(t => body.toLowerCase().includes(t.toLowerCase()));
-    if (hit.length) offenders.push(path.relative(REPO, f) + ' -> ' + hit.join(','));
+    const m = f.match(/courses[\\/]([a-z0-9]+)[\\/]chapter-\d+[\\/]lesson-(\d+)/);
+    const want = `${m[1]}-L${m[2]}`;
+    if (!html.includes(`var LESSON_ID = '${want}';`)) badId.push(path.relative(REPO, f));
+    // tracking scripts may appear ONLY inside the document.write gate, never as normal <script src> tags
+    // strip comments AND inline <script> bodies (the release gate's document.write string lives there)
+    const markup = html.replace(/<!--[\s\S]*?-->/g, '').replace(/<script>[\s\S]*?<\/script>/g, '');
+    if (/<script[^>]+src="[^"]*(tracking|api|rise-integration)\.js"/.test(markup)) staticTracking.push(path.relative(REPO, f));
+    if (/<iframe[^>]+\ssrc=/.test(html)) staticTracking.push(path.relative(REPO, f) + ' (iframe has src)');
   }
-  check('all 46 lesson wrapper pages exist', lessonPages.length === 46, `found ${lessonPages.length}`);
-  check('NO placeholder wrapper loads tracking/api/rise scripts, an iframe, or any completion trigger', offenders.length === 0, offenders.slice(0, 5).join(' | '));
+  check("every wrapper's embedded LESSON_ID matches its own folder (e.g. chapter-02/lesson-04 -> bst305-L04)", badId.length === 0, badId.slice(0, 3).join(', '));
+  check('no wrapper loads tracking/api/rise-integration via a normal script tag, or gives the iframe a src up front', staticTracking.length === 0, staticTracking.slice(0, 3).join(', '));
+  check('no rise/ folders exist in the shipped tree (nothing for a student to open or "simulate")', walk(path.join(REPO, 'courses')).every(f => !f.includes(`${path.sep}rise${path.sep}`)), '');
 
-  const riseDirs = walk(path.join(REPO, 'courses')).filter(f => f.includes(`${path.sep}rise${path.sep}`));
-  check('no rise/ folder (and so no simulate-completion page) exists for unreleased lessons', riseDirs.length === 0, riseDirs.slice(0, 3).join(', '));
-
-  const catalogJs = fs.readFileSync(path.join(REPO, 'js', 'course-catalog.js'), 'utf8');
-  check('course-catalog.js marks every lesson released:false', !/"released": true/.test(catalogJs) && (catalogJs.match(/"released": false/g) || []).length === 46, '');
-  const anyActiveSimulate = ['index.html', 'courses.html', 'course-bst305.html', 'course-mas204a.html', 'course-mas308.html']
+  const rel = fs.readFileSync(path.join(REPO, 'js/releases.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const ctx = { window: {} }; vm.createContext(ctx); vm.runInContext(rel, ctx);
+  check('shipped js/releases.js unlocks nothing', Array.isArray(ctx.window.RELEASED_LESSONS) && ctx.window.RELEASED_LESSONS.length === 0, JSON.stringify(ctx.window.RELEASED_LESSONS));
+  const anySimulate = ['index.html', 'courses.html', 'course-bst305.html', 'course-mas204a.html', 'course-mas308.html', 'js/lesson-nav.js']
     .some(f => /Simulate lesson completion/i.test(fs.readFileSync(path.join(REPO, f), 'utf8')));
-  check('no page anywhere offers a "Simulate lesson completion" button', !anyActiveSimulate, '');
+  check('no page offers a "Simulate lesson completion" button', !anySimulate, '');
+
+  const seed = fs.readFileSync(path.join(REPO, 'apps-script/Code.gs'), 'utf8');
+  check('Code.gs seed block has 46 lesson rows and the 3 courses',
+    (seed.match(/\["(bst305|mas204a|mas308)-L\d\d"/g) || []).length === 46 && /\["mas308", "Categorical Data Analysis"\]/.test(seed), '');
 }
 
-// ---------- 2. Releasing ONE lesson flips only that lesson to the live, tracked wrapper ----------
-{
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rel-'));
-  fs.cpSync(REPO, tmp, { recursive: true });
-  fs.rmSync(path.join(tmp, 'courses'), { recursive: true, force: true });
-  const catPath = path.join(tmp, 'data', 'catalog.py');
-  let cat = fs.readFileSync(catPath, 'utf8');
-  const target = 'L("Data Visualization and Presentation")';
-  check('test fixture: found the lesson to release in catalog.py', cat.includes(target), '');
-  cat = cat.replace(target, 'L("Data Visualization and Presentation", released=True)');
-  fs.writeFileSync(catPath, cat);
-  const out = execFileSync('bash', ['generate_all.sh'], { cwd: tmp, encoding: 'utf8' });
+// ---------- 2. Real browser: locked vs unlocked behaviour ----------
+async function browserSection() {
+  let chromium;
+  try { ({ chromium } = require('playwright')); } catch (e) { console.log('SKIPPED browser section (playwright not installed)'); return; }
 
-  const live = fs.readFileSync(path.join(tmp, 'courses/bst305/chapter-02/lesson-04/index.html'), 'utf8');
-  const other = fs.readFileSync(path.join(tmp, 'courses/bst305/chapter-02/lesson-03/index.html'), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
-  check('released lesson gets the live wrapper (tracking.js, rise-integration.js, rise iframe)',
-    live.includes('js/tracking.js') && live.includes('js/rise-integration.js') && live.includes('src="rise/index.html"'), '');
-  check('a neighbouring unreleased lesson is still a tracking-free placeholder',
-    !other.includes('tracking.js') && !other.includes('<iframe') && other.includes('Coming soon'), '');
-  const stub = fs.readFileSync(path.join(tmp, 'courses/bst305/chapter-02/lesson-04/rise/index.html'), 'utf8');
-  check('released-but-empty lesson gets a notice page with NO button and NO completion message',
-    !/<button/i.test(stub) && !/postMessage/.test(stub) && /hasn't been uploaded/i.test(stub), '');
-  check('generator warns when a released lesson has no Rise export yet', /WARNING: bst305 lesson 04 is released=True/.test(out), out.slice(-300));
+  const server = http.createServer((req, res) => {
+    let p = decodeURIComponent(req.url.split('?')[0]);
+    if (p.endsWith('/')) p += 'index.html';
+    const f = path.join(REPO, p);
+    if (!f.startsWith(REPO) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end('nf'); return; }
+    const ext = path.extname(f);
+    res.writeHead(200, { 'Content-Type': { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css' }[ext] || 'application/octet-stream' });
+    res.end(fs.readFileSync(f));
+  });
+  await new Promise(r => server.listen(0, r));
+  const base = `http://localhost:${server.address().port}`;
+  const browser = await chromium.launch();
 
-  // a real export already in rise/ must never be overwritten
-  fs.writeFileSync(path.join(tmp, 'courses/bst305/chapter-02/lesson-04/rise/index.html'), '<html>REAL RISE EXPORT</html>');
-  execFileSync('bash', ['generate_all.sh'], { cwd: tmp, encoding: 'utf8' });
-  check('re-running the generators never overwrites an existing Rise export',
-    fs.readFileSync(path.join(tmp, 'courses/bst305/chapter-02/lesson-04/rise/index.html'), 'utf8').includes('REAL RISE EXPORT'), '');
+  async function open(url, releases) {
+    const ctx = await browser.newContext();
+    await ctx.addInitScript(() => { try { localStorage.setItem('studentId', '2025-000123'); } catch (e) {} });
+    const page = await ctx.newPage();
+    const log = { urls: [], posts: [] };
+    page.on('request', r => { log.urls.push(r.url()); if (r.method() === 'POST') log.posts.push(r.postData() || ''); });
+    await page.route('**/js/releases.js', route => route.fulfill({ contentType: 'application/javascript', body: `window.RELEASED_LESSONS = ${JSON.stringify(releases)};` }));
+    await page.route('**/rise/index.html', route => route.fulfill({ contentType: 'text/html', body: '<html><body>fake rise</body></html>' }));
+    await page.goto(base + url); await page.waitForTimeout(500);
+    return { page, log, ctx };
+  }
+  const has = (log, name) => log.urls.some(u => u.includes(name));
+  const LESSON = '/courses/bst305/chapter-01/lesson-01/';
 
-  const seed = fs.readFileSync(path.join(tmp, 'apps-script/Code.gs'), 'utf8');
-  check('Code.gs seed block is regenerated (46 lesson rows, 3 course rows)',
-    (seed.match(/\["(bst305|mas204a|mas308)-L\d\d"/g) || []).length === 46 && /\["mas308", "Categorical Data Analysis"\]/.test(seed), '');
-  fs.rmSync(tmp, { recursive: true, force: true });
+  // 2a. locked lesson
+  {
+    const { page, log, ctx } = await open(LESSON, []);
+    check('LOCKED: "Coming soon" panel visible, live frame hidden',
+      await page.locator('#lesson-locked').isVisible() && !(await page.locator('#lesson-live').isVisible()), '');
+    check('LOCKED: tracking.js, api.js and rise-integration.js are never even requested',
+      !has(log, 'tracking.js') && !has(log, 'api.js') && !has(log, 'rise-integration.js'), log.urls.filter(u => /tracking|api|rise/.test(u)).join(' '));
+    check('LOCKED: no Rise export is requested', !has(log, '/rise/'), '');
+    check('LOCKED: window.markLessonComplete does not exist', await page.evaluate(() => typeof window.markLessonComplete === 'undefined'), '');
+    await page.evaluate(() => window.postMessage({ type: 'complete' }, '*'));
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    await page.waitForTimeout(400);
+    check('LOCKED: a forged completion message and a page-leave send NOTHING to the backend', log.posts.length === 0, JSON.stringify(log.posts));
+    await ctx.close();
+  }
+
+  // 2b. unlocked lesson
+  {
+    const { page, log, ctx } = await open(LESSON, ['bst305-L01']);
+    check('UNLOCKED: live frame visible, locked panel hidden',
+      await page.locator('#lesson-live').isVisible() && !(await page.locator('#lesson-locked').isVisible()), '');
+    check('UNLOCKED: Rise export is requested and tracking scripts load in order',
+      has(log, '/rise/index.html') && has(log, 'tracking.js') && has(log, 'rise-integration.js'), '');
+    await page.evaluate(() => window.postMessage({ type: 'complete' }, '*'));
+    await page.waitForTimeout(500);
+    const completed = log.posts.map(p => { try { return JSON.parse(p); } catch (e) { return {}; } })
+      .find(p => p.status === 'Completed');
+    check('UNLOCKED: a completion message logs a Completed record with the right composite IDs',
+      completed && completed.lessonId === 'bst305-L01' && completed.courseId === 'bst305' && completed.studentId === '2025-000123', JSON.stringify(log.posts).slice(0, 300));
+    await ctx.close();
+  }
+
+  // 2c. a DIFFERENT lesson stays locked when only L01 is unlocked
+  {
+    const { page, log, ctx } = await open('/courses/bst305/chapter-01/lesson-02/', ['bst305-L01']);
+    check('only listed lessons unlock: L02 stays locked when only L01 is listed',
+      await page.locator('#lesson-locked').isVisible() && !has(log, 'tracking.js'), '');
+    await ctx.close();
+  }
+
+  // 2d. course page: released row is a link; others locked; progress counts released lessons only
+  {
+    const { page, ctx } = await open('/course-bst305.html', ['bst305-L01']);
+    await page.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
+    const links = await page.locator('.lesson-row a').count();
+    const locked = await page.locator('.lesson-row-locked').count();
+    const label = (await page.locator('#progress-label').innerText()).replace(/\s+/g, ' ');
+    check('course page: 1 clickable lesson, 15 locked rows when only L01 is listed', links === 1 && locked === 15, `${links} links / ${locked} locked`);
+    check('course page: progress label counts released lessons only', /0 of 1 released lesson completed/.test(label), label);
+    await ctx.close();
+  }
+  {
+    const { page, ctx } = await open('/course-bst305.html', []);
+    const label = (await page.locator('#progress-label').innerText()).replace(/\s+/g, ' ');
+    check('course page: with nothing released it says so', /No lessons released yet/.test(label), label);
+    await ctx.close();
+  }
+
+  await browser.close(); server.close();
 }
 
 // ---------- 3. lesson-nav.js: locked rows in the sidebar, Next/Prev skip unreleased lessons ----------
@@ -138,7 +204,9 @@ function walk(dir, out = []) {
   check('last released lesson\'s Next goes back to the course page, not a locked lesson', /course-bst305\.html$/.test(last['next-lesson-link'].href), last['next-lesson-link'].href);
 }
 
-console.log('\n=== Placeholder / Release Smoke Test Results ===\n');
+(async () => {
+  await browserSection();
+  console.log('\n=== Placeholder / Release Smoke Test Results ===\n');
 let allPass = true;
 for (const r of results) {
   if (!r.pass) allPass = false;
@@ -146,3 +214,4 @@ for (const r of results) {
 }
 console.log(`\n${results.filter(r => r.pass).length}/${results.length} passed`);
 process.exit(allPass ? 0 : 1);
+})();

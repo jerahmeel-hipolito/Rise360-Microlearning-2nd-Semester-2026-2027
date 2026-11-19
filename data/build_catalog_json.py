@@ -24,8 +24,7 @@ for course in COURSES:
             chapter_obj["lessons"].append({
                 "lessonId": f"lesson-{lesson_counter:02d}",
                 "lessonTitle": lesson["title"],
-                "lessonNum": lesson_counter,
-                "released": bool(lesson["released"])
+                "lessonNum": lesson_counter
             })
         course_obj["chapters"].append(chapter_obj)
     out.append(course_obj)

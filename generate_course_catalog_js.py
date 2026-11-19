@@ -35,13 +35,14 @@ HEADER = '''/**
  * GENERATED FILE — do not hand-edit. Edit data/catalog.py, then run
  * ./generate_all.sh (runs the whole generator chain in the right order).
  *
- * Each lesson carries a `released` flag. Unreleased lessons are shown
- * everywhere as locked "Coming soon" rows with no link, and their wrapper
- * pages load no tracking code at all (see generate_lessons.py).
+ * RELEASE STATE is NOT stored here. At load time (see the footer below)
+ * each lesson's `released` flag is set from window.RELEASED_LESSONS, which
+ * js/releases.js defines — that small file is the only thing edited week
+ * to week. Anything not listed there is a locked "Coming soon" lesson.
  *
- * WEEKLY PUBLISHING WORKFLOW: drop the lesson's Rise export into its
- * rise/ folder, set released=True for it in data/catalog.py, run
- * ./generate_all.sh, and upload the changed files. See data/catalog.py.
+ * WEEKLY PUBLISHING WORKFLOW: upload the lesson's Rise export into its
+ * rise/ folder, then add the lesson ID (e.g. 'bst305-L01') to
+ * js/releases.js on GitHub. No regeneration or zip needed.
  */
 
 '''
@@ -51,6 +52,22 @@ FOOTER = '''
 // Convenience derived data, computed once here so every page that loads
 // this file (courses.html, the course-*.html detail pages, lesson-nav.js)
 // shares identical totals instead of re-deriving them slightly differently.
+// Layer the release state on. js/releases.js must be loaded BEFORE this file;
+// if it is missing (or empty) every lesson is simply locked — the safe default.
+(function () {
+  var list = (typeof window !== 'undefined' && window.RELEASED_LESSONS) || [];
+  var released = {};
+  list.forEach(function (id) { released[String(id).trim()] = true; });
+  CourseCatalog.forEach(function (course) {
+    course.chapters.forEach(function (ch) {
+      ch.lessons.forEach(function (l) {
+        var n = l.lessonNum < 10 ? '0' + l.lessonNum : String(l.lessonNum);
+        l.released = released[course.courseId + '-L' + n] === true;
+      });
+    });
+  });
+})();
+
 CourseCatalog.forEach(function (course) {
   course.totalLessons = course.chapters.reduce(function (sum, ch) {
     return sum + ch.lessons.length;

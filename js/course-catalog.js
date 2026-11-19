@@ -11,13 +11,14 @@
  * GENERATED FILE — do not hand-edit. Edit data/catalog.py, then run
  * ./generate_all.sh (runs the whole generator chain in the right order).
  *
- * Each lesson carries a `released` flag. Unreleased lessons are shown
- * everywhere as locked "Coming soon" rows with no link, and their wrapper
- * pages load no tracking code at all (see generate_lessons.py).
+ * RELEASE STATE is NOT stored here. At load time (see the footer below)
+ * each lesson's `released` flag is set from window.RELEASED_LESSONS, which
+ * js/releases.js defines — that small file is the only thing edited week
+ * to week. Anything not listed there is a locked "Coming soon" lesson.
  *
- * WEEKLY PUBLISHING WORKFLOW: drop the lesson's Rise export into its
- * rise/ folder, set released=True for it in data/catalog.py, run
- * ./generate_all.sh, and upload the changed files. See data/catalog.py.
+ * WEEKLY PUBLISHING WORKFLOW: upload the lesson's Rise export into its
+ * rise/ folder, then add the lesson ID (e.g. 'bst305-L01') to
+ * js/releases.js on GitHub. No regeneration or zip needed.
  */
 
 const CourseCatalog = [
@@ -35,14 +36,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-01",
             "lessonTitle": "Welcome to BST 305 — Course Orientation and Introduction to Biostatistics",
-            "lessonNum": 1,
-            "released": false
+            "lessonNum": 1
           },
           {
             "lessonId": "lesson-02",
             "lessonTitle": "Variables, Measurement Scales, Data Collection, Sampling, and Sample Size",
-            "lessonNum": 2,
-            "released": false
+            "lessonNum": 2
           }
         ]
       },
@@ -53,14 +52,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-03",
             "lessonTitle": "Frequency Distributions, Basic Data Management, and Measures of Frequency",
-            "lessonNum": 3,
-            "released": false
+            "lessonNum": 3
           },
           {
             "lessonId": "lesson-04",
             "lessonTitle": "Data Visualization and Presentation",
-            "lessonNum": 4,
-            "released": false
+            "lessonNum": 4
           }
         ]
       },
@@ -71,14 +68,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-05",
             "lessonTitle": "Descriptive Statistics — Central Tendency, Dispersion, and Shape",
-            "lessonNum": 5,
-            "released": false
+            "lessonNum": 5
           },
           {
             "lessonId": "lesson-06",
             "lessonTitle": "Probability Essentials and Probability Distributions",
-            "lessonNum": 6,
-            "released": false
+            "lessonNum": 6
           }
         ]
       },
@@ -89,14 +84,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-07",
             "lessonTitle": "Foundations of Hypothesis Testing",
-            "lessonNum": 7,
-            "released": false
+            "lessonNum": 7
           },
           {
             "lessonId": "lesson-08",
             "lessonTitle": "Comparing Two Means — t-Tests",
-            "lessonNum": 8,
-            "released": false
+            "lessonNum": 8
           }
         ]
       },
@@ -107,8 +100,7 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-09",
             "lessonTitle": "Principles of Experimental Design and One-Way ANOVA",
-            "lessonNum": 9,
-            "released": false
+            "lessonNum": 9
           }
         ]
       },
@@ -119,14 +111,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-10",
             "lessonTitle": "Two-Way Factorial ANOVA",
-            "lessonNum": 10,
-            "released": false
+            "lessonNum": 10
           },
           {
             "lessonId": "lesson-11",
             "lessonTitle": "Randomized Block and Repeated-Measures Designs",
-            "lessonNum": 11,
-            "released": false
+            "lessonNum": 11
           }
         ]
       },
@@ -137,14 +127,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-12",
             "lessonTitle": "Non-Parametric Statistics",
-            "lessonNum": 12,
-            "released": false
+            "lessonNum": 12
           },
           {
             "lessonId": "lesson-13",
             "lessonTitle": "Categorical Data Analysis and Epidemiologic Measures of Association",
-            "lessonNum": 13,
-            "released": false
+            "lessonNum": 13
           }
         ]
       },
@@ -155,20 +143,17 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-14",
             "lessonTitle": "Correlation and Simple Linear Regression",
-            "lessonNum": 14,
-            "released": false
+            "lessonNum": 14
           },
           {
             "lessonId": "lesson-15",
             "lessonTitle": "Statistics in Genetics, Ecology, and Dose–Response Studies",
-            "lessonNum": 15,
-            "released": false
+            "lessonNum": 15
           },
           {
             "lessonId": "lesson-16",
             "lessonTitle": "Logistic Regression and Introduction to Survival Analysis",
-            "lessonNum": 16,
-            "released": false
+            "lessonNum": 16
           }
         ]
       }
@@ -188,14 +173,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-01",
             "lessonTitle": "Welcome to MAS 204a — Course Orientation and Introduction to Regression Analysis",
-            "lessonNum": 1,
-            "released": false
+            "lessonNum": 1
           },
           {
             "lessonId": "lesson-02",
             "lessonTitle": "Correlation Analysis",
-            "lessonNum": 2,
-            "released": false
+            "lessonNum": 2
           }
         ]
       },
@@ -206,14 +189,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-03",
             "lessonTitle": "Simple Linear Regression I: The Model and Least Squares Estimation",
-            "lessonNum": 3,
-            "released": false
+            "lessonNum": 3
           },
           {
             "lessonId": "lesson-04",
             "lessonTitle": "Simple Linear Regression II: Variation and Goodness of Fit",
-            "lessonNum": 4,
-            "released": false
+            "lessonNum": 4
           }
         ]
       },
@@ -224,26 +205,22 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-05",
             "lessonTitle": "Simple Linear Regression III: Inference",
-            "lessonNum": 5,
-            "released": false
+            "lessonNum": 5
           },
           {
             "lessonId": "lesson-06",
             "lessonTitle": "Simple Linear Regression IV: Model Assumptions and Residual Analysis",
-            "lessonNum": 6,
-            "released": false
+            "lessonNum": 6
           },
           {
             "lessonId": "lesson-07",
             "lessonTitle": "Simple Linear Regression V: Unusual Observations and Transformations",
-            "lessonNum": 7,
-            "released": false
+            "lessonNum": 7
           },
           {
             "lessonId": "lesson-08",
             "lessonTitle": "Simple Linear Regression VI: Applications and Review",
-            "lessonNum": 8,
-            "released": false
+            "lessonNum": 8
           }
         ]
       },
@@ -254,20 +231,17 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-09",
             "lessonTitle": "Multiple Linear Regression I: The Model and Estimation",
-            "lessonNum": 9,
-            "released": false
+            "lessonNum": 9
           },
           {
             "lessonId": "lesson-10",
             "lessonTitle": "Multiple Linear Regression II: Inference",
-            "lessonNum": 10,
-            "released": false
+            "lessonNum": 10
           },
           {
             "lessonId": "lesson-11",
             "lessonTitle": "Multiple Linear Regression III: Diagnostics",
-            "lessonNum": 11,
-            "released": false
+            "lessonNum": 11
           }
         ]
       },
@@ -278,20 +252,17 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-12",
             "lessonTitle": "Categorical Predictors and Interaction",
-            "lessonNum": 12,
-            "released": false
+            "lessonNum": 12
           },
           {
             "lessonId": "lesson-13",
             "lessonTitle": "Model Building I: Variable Selection Criteria",
-            "lessonNum": 13,
-            "released": false
+            "lessonNum": 13
           },
           {
             "lessonId": "lesson-14",
             "lessonTitle": "Model Building II: Selection Procedures and Model Validation",
-            "lessonNum": 14,
-            "released": false
+            "lessonNum": 14
           }
         ]
       },
@@ -302,8 +273,7 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-15",
             "lessonTitle": "Applied Regression Analysis: Advanced Topics and Tips",
-            "lessonNum": 15,
-            "released": false
+            "lessonNum": 15
           }
         ]
       }
@@ -323,20 +293,17 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-01",
             "lessonTitle": "Welcome to MAS 308 — Course Orientation and Introduction to Categorical Data Analysis",
-            "lessonNum": 1,
-            "released": false
+            "lessonNum": 1
           },
           {
             "lessonId": "lesson-02",
             "lessonTitle": "Probability Distributions for Categorical and Count Data",
-            "lessonNum": 2,
-            "released": false
+            "lessonNum": 2
           },
           {
             "lessonId": "lesson-03",
             "lessonTitle": "Statistical Inference for Proportions",
-            "lessonNum": 3,
-            "released": false
+            "lessonNum": 3
           }
         ]
       },
@@ -347,14 +314,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-04",
             "lessonTitle": "Contingency Tables I: Notation and Probability Structure",
-            "lessonNum": 4,
-            "released": false
+            "lessonNum": 4
           },
           {
             "lessonId": "lesson-05",
             "lessonTitle": "Contingency Tables II: Comparing Proportions, Relative Risk, and Odds Ratio",
-            "lessonNum": 5,
-            "released": false
+            "lessonNum": 5
           }
         ]
       },
@@ -365,14 +330,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-06",
             "lessonTitle": "Confidence Intervals and the Chi-Squared Test of Independence",
-            "lessonNum": 6,
-            "released": false
+            "lessonNum": 6
           },
           {
             "lessonId": "lesson-07",
             "lessonTitle": "Residuals and Fisher's Exact Test",
-            "lessonNum": 7,
-            "released": false
+            "lessonNum": 7
           }
         ]
       },
@@ -383,8 +346,7 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-08",
             "lessonTitle": "Association in Three-Way Tables",
-            "lessonNum": 8,
-            "released": false
+            "lessonNum": 8
           }
         ]
       },
@@ -395,14 +357,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-09",
             "lessonTitle": "Generalized Linear Models I: Components and Binary Response Models",
-            "lessonNum": 9,
-            "released": false
+            "lessonNum": 9
           },
           {
             "lessonId": "lesson-10",
             "lessonTitle": "Generalized Linear Models II: Count Data, Inference, and Model Checking",
-            "lessonNum": 10,
-            "released": false
+            "lessonNum": 10
           }
         ]
       },
@@ -413,14 +373,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-11",
             "lessonTitle": "Loglinear Models I: Two-Way Tables",
-            "lessonNum": 11,
-            "released": false
+            "lessonNum": 11
           },
           {
             "lessonId": "lesson-12",
             "lessonTitle": "Loglinear Models II: Three-Way Tables and Model Selection",
-            "lessonNum": 12,
-            "released": false
+            "lessonNum": 12
           }
         ]
       },
@@ -431,14 +389,12 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-13",
             "lessonTitle": "Logistic Regression I: The Model and Its Interpretation",
-            "lessonNum": 13,
-            "released": false
+            "lessonNum": 13
           },
           {
             "lessonId": "lesson-14",
             "lessonTitle": "Logistic Regression II: Model Building, Fit, and Diagnostics",
-            "lessonNum": 14,
-            "released": false
+            "lessonNum": 14
           }
         ]
       },
@@ -449,8 +405,7 @@ const CourseCatalog = [
           {
             "lessonId": "lesson-15",
             "lessonTitle": "Regression for Count Data and Applied Categorical Data Analysis",
-            "lessonNum": 15,
-            "released": false
+            "lessonNum": 15
           }
         ]
       }
@@ -461,6 +416,22 @@ const CourseCatalog = [
 // Convenience derived data, computed once here so every page that loads
 // this file (courses.html, the course-*.html detail pages, lesson-nav.js)
 // shares identical totals instead of re-deriving them slightly differently.
+// Layer the release state on. js/releases.js must be loaded BEFORE this file;
+// if it is missing (or empty) every lesson is simply locked — the safe default.
+(function () {
+  var list = (typeof window !== 'undefined' && window.RELEASED_LESSONS) || [];
+  var released = {};
+  list.forEach(function (id) { released[String(id).trim()] = true; });
+  CourseCatalog.forEach(function (course) {
+    course.chapters.forEach(function (ch) {
+      ch.lessons.forEach(function (l) {
+        var n = l.lessonNum < 10 ? '0' + l.lessonNum : String(l.lessonNum);
+        l.released = released[course.courseId + '-L' + n] === true;
+      });
+    });
+  });
+})();
+
 CourseCatalog.forEach(function (course) {
   course.totalLessons = course.chapters.reduce(function (sum, ch) {
     return sum + ch.lessons.length;

@@ -7,7 +7,7 @@ from data/course_detail_template.html, filled in with data/catalog.py.
 Previously this was a manual step (copy-paste the template three times,
 hand-edit each placeholder) — this script replaces that with the same
 "single source of truth" pattern generate_lessons.py already uses for
-lesson wrapper pages, so a catalog.py change (e.g. a lesson title rename or a release)
+lesson wrapper pages, so a catalog.py change (e.g. a lesson title rename)
 propagates here too instead of needing separate manual edits.
 
 Safe to re-run any time data/catalog.py or data/course_detail_template.html
@@ -30,7 +30,6 @@ with open(os.path.join(REPO, "data", "course_detail_template.html")) as f:
 
 for course in COURSES:
     total_lessons = sum(len(ch["lessons"]) for ch in course["chapters"])
-    released_lessons = sum(1 for ch in course["chapters"] for l in ch["lessons"] if l["released"])
 
     out = (TEMPLATE
         .replace("__COURSE_ID__", course["course_id"])
@@ -38,10 +37,9 @@ for course in COURSES:
         .replace("__COURSE_NUMBER__", course["course_number"])
         .replace("__COURSE_NAME__", course["course_name"])
         .replace("__TOTAL_LESSONS__", str(total_lessons))
-        .replace("__RELEASED_LESSONS__", str(released_lessons))
     )
 
     out_path = os.path.join(REPO, f"course-{course['course_id']}.html")
     with open(out_path, "w") as f:
         f.write(out)
-    print(f"Wrote {out_path}  ({total_lessons} lessons, {released_lessons} released)")
+    print(f"Wrote {out_path}  ({total_lessons} lessons)")

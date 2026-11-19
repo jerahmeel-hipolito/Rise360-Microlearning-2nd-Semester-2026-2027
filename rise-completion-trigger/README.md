@@ -21,8 +21,8 @@ lesson's last slide. Nothing completion-related ships in a placeholder lesson.
 3. Upload a copy of `completion-block.html` with `{{LESSON_TITLE}}`
    replaced by the lesson's title.
 4. Export the lesson as **HTML5** as usual.
-5. Drop the export into that lesson's `rise/` folder, set `released=True`
-   for the lesson in `data/catalog.py`, and run `./generate_all.sh`.
+5. Drop the export into that lesson's `rise/` folder, add the
+   lesson's ID to `js/releases.js` on GitHub (see the main README).
 
 That's the entire per-lesson workflow. The trigger logic itself is
 identical in every copy — only the visible title text differs — so if

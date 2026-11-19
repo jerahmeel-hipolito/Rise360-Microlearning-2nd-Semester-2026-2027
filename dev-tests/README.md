@@ -7,10 +7,10 @@ Run them with plain Node, no install required:
 ```bash
 node dev-tests/frontend_smoke_test.js
 node dev-tests/apps_script_smoke_test.js
-node dev-tests/placeholder_smoke_test.js   # needs python3 on PATH
+node dev-tests/placeholder_smoke_test.js   # browser part needs Playwright
 ```
 
-As of the last edit: `frontend_smoke_test.js` is 12/12, `apps_script_smoke_test.js` is 33/33, `placeholder_smoke_test.js` is 18/18.
+As of the last edit: `frontend_smoke_test.js` is 12/12, `apps_script_smoke_test.js` is 33/33, `placeholder_smoke_test.js` is 25/25.
 
 ## What frontend_smoke_test.js checks
 
@@ -42,6 +42,6 @@ Any time you edit `tracking.js`, `storage.js`, `api.js`, `Code.gs`, or `data/cat
 
 ## What placeholder_smoke_test.js checks (2nd semester)
 
-- every committed lesson page is a locked placeholder: it loads no `tracking.js` / `api.js` / `rise-integration.js`, has no iframe, no completion button, and there is no `rise/` folder at all
-- flipping ONE lesson to `released=True` in a temp copy of the repo switches only that lesson to the live, tracked wrapper; a released lesson with no Rise export gets a button-free notice page plus a generator warning; an existing Rise export is never overwritten; the `Code.gs` seed block regenerates
+- static: all 46 wrappers exist, each wrapper's embedded ID matches its folder, none loads tracking scripts via a normal tag or gives the iframe a src up front, no `rise/` folders ship, `js/releases.js` ships empty, the `Code.gs` seed has 46 lessons
+- real browser (Playwright): a LOCKED lesson never even requests tracking.js / api.js / rise-integration.js or the Rise export, has no `markLessonComplete`, and a forged completion message or page-leave sends nothing; an UNLOCKED lesson loads the export and logs a Completed record with the right IDs; only listed IDs unlock; the course page shows 1 link + locked rows and counts released lessons only
 - `lesson-nav.js`: unreleased lessons are plain text (no link) in the sidebar, and Next/Previous skip them
