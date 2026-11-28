@@ -35,4 +35,5 @@ window.RELEASED_LESSONS = [
   'mas204a-L02',
   'bst305-L03',
   'mas204a-L03',
+  'mas308-L02',
 ];
